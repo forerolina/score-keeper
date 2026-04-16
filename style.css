@@ -1,0 +1,110 @@
+:root {
+  color-scheme: light dark;
+  --bg-start: #f3f7ff;
+  --bg-end: #f7f4ff;
+  --card-bg: #ffffff;
+  --card-border: #d8def0;
+  --text-color: #1f2a44;
+  --muted-text: #5f6b8a;
+  --primary: #e546b3;
+  --primary-hover: #db7fdd;
+  --danger: #262cdc;
+  --danger-hover: #7c98ea;
+  --button-text: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--text-color);
+  background: linear-gradient(180deg, var(--bg-start), var(--bg-end));
+}
+
+h1 {
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.teams {
+  width: min(900px, 100%);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.team-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  box-shadow: 0 10px 24px rgba(31, 42, 68, 0.08);
+}
+
+.team-card h2 {
+  margin: 0;
+  color: var(--muted-text);
+}
+
+.score {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--button-text);
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease, background-color 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+  opacity: 0.92;
+}
+
+button[id$="increment"] {
+  background-color: var(--primary);
+}
+
+button[id$="increment"]:hover {
+  background-color: var(--primary-hover);
+}
+
+button[id$="decrement"] {
+  background-color: var(--danger);
+}
+
+button[id$="decrement"]:hover {
+  background-color: var(--danger-hover);
+}
