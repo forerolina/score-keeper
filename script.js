@@ -1,9 +1,13 @@
 let teamAScore = 0;
 let teamBScore = 0;
 const storageKey = "score-keeper-scores";
+const confettiColors = ["#e546b3", "#7c98ea", "#f6c945", "#56c596", "#ff7f50"];
+const confettiPieceCount = 18;
 
 const teamAScoreElement = document.getElementById("team-a-score");
 const teamBScoreElement = document.getElementById("team-b-score");
+const teamAConfettiLayer = document.querySelector("#team-a .confetti-layer");
+const teamBConfettiLayer = document.querySelector("#team-b .confetti-layer");
 
 const teamAIncrementButton = document.getElementById("team-a-increment");
 const teamADecrementButton = document.getElementById("team-a-decrement");
@@ -13,6 +17,47 @@ const teamBDecrementButton = document.getElementById("team-b-decrement");
 function renderScores() {
   teamAScoreElement.textContent = String(teamAScore);
   teamBScoreElement.textContent = String(teamBScore);
+}
+
+function getLeadingTeam() {
+  if (teamAScore === teamBScore) return null;
+  return teamAScore > teamBScore ? "team-a" : "team-b";
+}
+
+function createConfettiPiece(layer) {
+  const confettiPiece = document.createElement("span");
+  const driftX = `${Math.random() * 8 - 4}rem`;
+  const spinRotation = `${Math.random() * 420 - 210}deg`;
+  confettiPiece.className = "confetti-piece";
+  confettiPiece.style.left = `${Math.random() * 100}%`;
+  confettiPiece.style.backgroundColor =
+    confettiColors[Math.floor(Math.random() * confettiColors.length)];
+  confettiPiece.style.animationDelay = `${Math.random() * 180}ms`;
+  confettiPiece.style.animationDuration = `${900 + Math.random() * 500}ms`;
+  confettiPiece.style.setProperty("--drift-x", driftX);
+  confettiPiece.style.setProperty("--spin-rotation", spinRotation);
+  layer.append(confettiPiece);
+
+  window.setTimeout(() => {
+    confettiPiece.remove();
+  }, 1600);
+}
+
+function triggerConfetti(teamId) {
+  const layer = teamId === "team-a" ? teamAConfettiLayer : teamBConfettiLayer;
+  if (!layer) return;
+
+  for (let index = 0; index < confettiPieceCount; index += 1) {
+    createConfettiPiece(layer);
+  }
+}
+
+function updateScores() {
+  renderScores();
+  saveScores();
+
+  const leadingTeam = getLeadingTeam();
+  if (leadingTeam) triggerConfetti(leadingTeam);
 }
 
 function saveScores() {
@@ -38,28 +83,24 @@ function loadScores() {
 
 function incrementTeamAScore() {
   teamAScore += 1;
-  renderScores();
-  saveScores();
+  updateScores();
 }
 
 function decrementTeamAScore() {
   if (teamAScore === 0) return;
   teamAScore -= 1;
-  renderScores();
-  saveScores();
+  updateScores();
 }
 
 function incrementTeamBScore() {
   teamBScore += 1;
-  renderScores();
-  saveScores();
+  updateScores();
 }
 
 function decrementTeamBScore() {
   if (teamBScore === 0) return;
   teamBScore -= 1;
-  renderScores();
-  saveScores();
+  updateScores();
 }
 
 teamAIncrementButton.addEventListener("click", incrementTeamAScore);

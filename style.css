@@ -44,6 +44,8 @@ h1 {
 }
 
 .team-card {
+  position: relative;
+  overflow: hidden;
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 14px;
@@ -53,6 +55,22 @@ h1 {
   align-items: center;
   gap: 0.9rem;
   box-shadow: 0 10px 24px rgba(31, 42, 68, 0.08);
+}
+
+.confetti-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12%;
+  width: 0.55rem;
+  height: 1rem;
+  border-radius: 999px;
+  opacity: 0;
+  animation: confetti-fall 1s ease-out forwards;
 }
 
 .team-card h2 {
@@ -107,4 +125,21 @@ button[id$="decrement"] {
 
 button[id$="decrement"]:hover {
   background-color: var(--danger-hover);
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.8);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift-x), 16rem, 0) rotate(var(--spin-rotation))
+      scale(1);
+  }
 }
