@@ -6,6 +6,8 @@ const confettiPieceCount = 18;
 
 const teamAScoreElement = document.getElementById("team-a-score");
 const teamBScoreElement = document.getElementById("team-b-score");
+const teamACardElement = document.getElementById("team-a");
+const teamBCardElement = document.getElementById("team-b");
 const teamAConfettiLayer = document.querySelector("#team-a .confetti-layer");
 const teamBConfettiLayer = document.querySelector("#team-b .confetti-layer");
 
@@ -52,11 +54,17 @@ function triggerConfetti(teamId) {
   }
 }
 
+function renderLeadingTeam(teamId) {
+  teamACardElement.classList.toggle("is-winning", teamId === "team-a");
+  teamBCardElement.classList.toggle("is-winning", teamId === "team-b");
+}
+
 function updateScores() {
   renderScores();
   saveScores();
 
   const leadingTeam = getLeadingTeam();
+  renderLeadingTeam(leadingTeam);
   if (leadingTeam) triggerConfetti(leadingTeam);
 }
 
@@ -110,3 +118,4 @@ teamBDecrementButton.addEventListener("click", decrementTeamBScore);
 
 loadScores();
 renderScores();
+renderLeadingTeam(getLeadingTeam());

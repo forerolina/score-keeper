@@ -55,6 +55,16 @@ h1 {
   align-items: center;
   gap: 0.9rem;
   box-shadow: 0 10px 24px rgba(31, 42, 68, 0.08);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card.is-winning {
+  border-color: rgba(229, 70, 179, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(229, 70, 179, 0.12),
+    0 18px 40px rgba(229, 70, 179, 0.24);
+  transform: translateY(-2px);
+  animation: winner-glow 1.8s ease-in-out infinite alternate;
 }
 
 .confetti-layer {
@@ -141,5 +151,19 @@ button[id$="decrement"]:hover {
     opacity: 0;
     transform: translate3d(var(--drift-x), 16rem, 0) rotate(var(--spin-rotation))
       scale(1);
+  }
+}
+
+@keyframes winner-glow {
+  0% {
+    box-shadow:
+      0 0 0 4px rgba(229, 70, 179, 0.12),
+      0 18px 40px rgba(229, 70, 179, 0.2);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 7px rgba(229, 70, 179, 0.2),
+      0 22px 50px rgba(124, 152, 234, 0.28);
   }
 }
