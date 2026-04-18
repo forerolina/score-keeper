@@ -38,6 +38,7 @@ const teamBNameInput = document.getElementById("team-b-name");
 const matchHistoryList = document.getElementById("match-history-list");
 const matchHistoryEmpty = document.getElementById("match-history-empty");
 const clearMatchHistoryButton = document.getElementById("clear-match-history");
+const aggregateSummaryLead = document.getElementById("aggregate-summary-lead");
 
 /** @type {{ version: number, matchSessionActive: boolean, currentMatch: object, completedMatches: object[] }} */
 let appState = createDefaultState();
@@ -256,6 +257,39 @@ function getCompletedMatchOutcome(match) {
   return match.teamAScore > match.teamBScore ? "team-a" : "team-b";
 }
 
+function getAggregateTotals() {
+  let totalA = appState.currentMatch.teamAScore;
+  let totalB = appState.currentMatch.teamBScore;
+  for (const match of appState.completedMatches) {
+    totalA += match.teamAScore;
+    totalB += match.teamBScore;
+  }
+  return { totalA, totalB };
+}
+
+function renderAggregateSummary() {
+  if (!aggregateSummaryLead) return;
+  syncDomIntoCurrentMatch();
+  const { totalA, totalB } = getAggregateTotals();
+  const nameA = resolvedTeamAName();
+  const nameB = resolvedTeamBName();
+  const hasHistory = appState.completedMatches.length > 0;
+
+  if (totalA > totalB) {
+    aggregateSummaryLead.textContent = `${nameA} leads with ${totalA} points overall.`;
+    return;
+  }
+  if (totalB > totalA) {
+    aggregateSummaryLead.textContent = `${nameB} leads with ${totalB} points overall.`;
+    return;
+  }
+  if (totalA === 0 && totalB === 0 && !hasHistory) {
+    aggregateSummaryLead.textContent = "No matches yet.";
+    return;
+  }
+  aggregateSummaryLead.textContent = `Tied at ${totalA} overall.`;
+}
+
 function formatPlayedAt(iso) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
@@ -272,64 +306,65 @@ function renderMatchHistory() {
   if (items.length === 0) {
     matchHistoryEmpty.hidden = false;
     matchHistoryList.hidden = true;
-    return;
+  } else {
+    matchHistoryEmpty.hidden = true;
+    matchHistoryList.hidden = false;
+
+    for (const match of items) {
+      const outcome = getCompletedMatchOutcome(match);
+      const row = document.createElement("li");
+      row.className = "match-history-row";
+      if (outcome === "team-a") row.classList.add("is-win-team-a");
+      else if (outcome === "team-b") row.classList.add("is-win-team-b");
+      else row.classList.add("is-draw");
+
+      const dismiss = document.createElement("button");
+      dismiss.type = "button";
+      dismiss.className = "match-history-row-dismiss";
+      dismiss.textContent = "\u00d7";
+      const playedLabel = formatPlayedAt(match.playedAt);
+      dismiss.setAttribute(
+        "aria-label",
+        playedLabel ? `Remove match from ${playedLabel}` : "Remove match from history",
+      );
+      dismiss.dataset.matchId = match.id;
+
+      const meta = document.createElement("div");
+      meta.className = "match-history-meta";
+      meta.textContent = formatPlayedAt(match.playedAt);
+
+      const sides = document.createElement("div");
+      sides.className = "match-history-sides";
+
+      const sideA = document.createElement("div");
+      sideA.className = "match-history-side match-history-side-a";
+      if (outcome === "team-a") sideA.classList.add("is-winner");
+      const nameA = document.createElement("span");
+      nameA.className = "match-history-name";
+      nameA.textContent = match.teamAName;
+      const scoreA = document.createElement("span");
+      scoreA.className = "match-history-score";
+      scoreA.textContent = String(match.teamAScore);
+      sideA.append(nameA, scoreA);
+
+      const sideB = document.createElement("div");
+      sideB.className = "match-history-side match-history-side-b";
+      if (outcome === "team-b") sideB.classList.add("is-winner");
+      const nameB = document.createElement("span");
+      nameB.className = "match-history-name";
+      nameB.textContent = match.teamBName;
+      const scoreB = document.createElement("span");
+      scoreB.className = "match-history-score";
+      scoreB.textContent = String(match.teamBScore);
+      sideB.append(nameB, scoreB);
+
+      sides.append(sideA, sideB);
+      row.append(dismiss, meta, sides);
+      matchHistoryList.append(row);
+    }
   }
 
-  matchHistoryEmpty.hidden = true;
-  matchHistoryList.hidden = false;
-
-  for (const match of items) {
-    const outcome = getCompletedMatchOutcome(match);
-    const row = document.createElement("li");
-    row.className = "match-history-row";
-    if (outcome === "team-a") row.classList.add("is-win-team-a");
-    else if (outcome === "team-b") row.classList.add("is-win-team-b");
-    else row.classList.add("is-draw");
-
-    const dismiss = document.createElement("button");
-    dismiss.type = "button";
-    dismiss.className = "match-history-row-dismiss";
-    dismiss.textContent = "\u00d7";
-    const playedLabel = formatPlayedAt(match.playedAt);
-    dismiss.setAttribute(
-      "aria-label",
-      playedLabel ? `Remove match from ${playedLabel}` : "Remove match from history",
-    );
-    dismiss.dataset.matchId = match.id;
-
-    const meta = document.createElement("div");
-    meta.className = "match-history-meta";
-    meta.textContent = formatPlayedAt(match.playedAt);
-
-    const sides = document.createElement("div");
-    sides.className = "match-history-sides";
-
-    const sideA = document.createElement("div");
-    sideA.className = "match-history-side match-history-side-a";
-    if (outcome === "team-a") sideA.classList.add("is-winner");
-    const nameA = document.createElement("span");
-    nameA.className = "match-history-name";
-    nameA.textContent = match.teamAName;
-    const scoreA = document.createElement("span");
-    scoreA.className = "match-history-score";
-    scoreA.textContent = String(match.teamAScore);
-    sideA.append(nameA, scoreA);
-
-    const sideB = document.createElement("div");
-    sideB.className = "match-history-side match-history-side-b";
-    if (outcome === "team-b") sideB.classList.add("is-winner");
-    const nameB = document.createElement("span");
-    nameB.className = "match-history-name";
-    nameB.textContent = match.teamBName;
-    const scoreB = document.createElement("span");
-    scoreB.className = "match-history-score";
-    scoreB.textContent = String(match.teamBScore);
-    sideB.append(nameB, scoreB);
-
-    sides.append(sideA, sideB);
-    row.append(dismiss, meta, sides);
-    matchHistoryList.append(row);
-  }
+  renderAggregateSummary();
 }
 
 function handleMatchHistoryListClick(event) {
@@ -390,16 +425,19 @@ function updateScores() {
   const leadingTeam = getLeadingTeam();
   renderLeadingTeam(leadingTeam);
   if (leadingTeam) triggerConfetti(leadingTeam);
+  renderAggregateSummary();
 }
 
 function commitTeamAName() {
   teamANameInput.value = resolvedTeamAName();
   saveState();
+  renderAggregateSummary();
 }
 
 function commitTeamBName() {
   teamBNameInput.value = resolvedTeamBName();
   saveState();
+  renderAggregateSummary();
 }
 
 function handleTeamNameKeydown(event) {

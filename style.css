@@ -77,6 +77,35 @@ h1 {
   gap: var(--space-4);
 }
 
+.aggregate-summary {
+  width: 100%;
+}
+
+.aggregate-summary-header {
+  margin-bottom: 0.65rem;
+}
+
+.aggregate-summary-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--on-surface);
+}
+
+.aggregate-summary-lead {
+  margin: 0;
+  padding: var(--space-3) var(--space-3);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  background-color: var(--surface-container-low);
+  border: none;
+  border-radius: var(--radius-card);
+}
+
 .current-match {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
