@@ -8,51 +8,76 @@
   </head>
   <body>
     <h1>Score Keeper</h1>
-    <div class="teams">
-      <section id="team-a" class="team-card">
-        <div class="confetti-layer" aria-hidden="true"></div>
-        <h2 class="team-name-heading">
-          <label class="visually-hidden" for="team-a-name">Team A name</label>
-          <input
-            id="team-a-name"
-            class="team-name-input"
-            type="text"
-            maxlength="48"
-            autocomplete="off"
-            value="Unicorns 🦄"
-          />
-        </h2>
-        <div id="team-a-score" class="score">0</div>
-        <div class="controls">
-          <button id="team-a-decrement" type="button">-</button>
-          <button id="team-a-increment" type="button">+</button>
+    <main class="app-layout">
+      <section class="current-match" aria-labelledby="current-match-title">
+        <h2 id="current-match-title" class="current-match-title">Current match</h2>
+        <div class="current-match-toolbar">
+          <button
+            id="reset-scores"
+            type="button"
+            class="toolbar-button toolbar-button-secondary"
+            aria-label="Reset scores for current match"
+          >
+            Reset
+          </button>
+          <button
+            id="new-match"
+            type="button"
+            class="toolbar-button toolbar-button-primary"
+            aria-label="Save current match to history and start a new match"
+          >
+            New match
+          </button>
+        </div>
+        <div class="teams">
+          <section id="team-a" class="team-card">
+            <div class="confetti-layer" aria-hidden="true"></div>
+            <h2 class="team-name-heading">
+              <label class="visually-hidden" for="team-a-name">Team A name</label>
+              <input
+                id="team-a-name"
+                class="team-name-input"
+                type="text"
+                maxlength="48"
+                autocomplete="off"
+                value="Unicorns 🦄"
+              />
+            </h2>
+            <div id="team-a-score" class="score">0</div>
+            <div class="controls">
+              <button id="team-a-decrement" type="button">-</button>
+              <button id="team-a-increment" type="button">+</button>
+            </div>
+          </section>
+
+          <section id="team-b" class="team-card">
+            <div class="confetti-layer" aria-hidden="true"></div>
+            <h2 class="team-name-heading">
+              <label class="visually-hidden" for="team-b-name">Team B name</label>
+              <input
+                id="team-b-name"
+                class="team-name-input"
+                type="text"
+                maxlength="48"
+                autocomplete="off"
+                value="Bats 🦇"
+              />
+            </h2>
+            <div id="team-b-score" class="score">0</div>
+            <div class="controls">
+              <button id="team-b-decrement" type="button">-</button>
+              <button id="team-b-increment" type="button">+</button>
+            </div>
+          </section>
         </div>
       </section>
 
-      <div class="reset-slot">
-        <button id="reset-scores" type="button">Reset</button>
-      </div>
-
-      <section id="team-b" class="team-card">
-        <div class="confetti-layer" aria-hidden="true"></div>
-        <h2 class="team-name-heading">
-          <label class="visually-hidden" for="team-b-name">Team B name</label>
-          <input
-            id="team-b-name"
-            class="team-name-input"
-            type="text"
-            maxlength="48"
-            autocomplete="off"
-            value="Bats 🦇"
-          />
-        </h2>
-        <div id="team-b-score" class="score">0</div>
-        <div class="controls">
-          <button id="team-b-decrement" type="button">-</button>
-          <button id="team-b-increment" type="button">+</button>
-        </div>
+      <section class="match-history" aria-labelledby="match-history-title">
+        <h2 id="match-history-title" class="match-history-title">Past matches</h2>
+        <p id="match-history-empty" class="match-history-empty">No completed matches yet.</p>
+        <ol id="match-history-list" class="match-history-list" hidden></ol>
       </section>
-    </div>
+    </main>
     <script src="script.js"></script>
   </body>
 </html>

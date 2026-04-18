@@ -6,6 +6,11 @@ const defaultTeamBName = "Bats 🦇";
 const confettiColors = ["#e546b3", "#7c98ea", "#f6c945", "#56c596", "#ff7f50"];
 const confettiPieceCount = 18;
 
+const playedAtFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
 const teamAScoreElement = document.getElementById("team-a-score");
 const teamBScoreElement = document.getElementById("team-b-score");
 const teamACardElement = document.getElementById("team-a");
@@ -18,8 +23,171 @@ const teamADecrementButton = document.getElementById("team-a-decrement");
 const teamBIncrementButton = document.getElementById("team-b-increment");
 const teamBDecrementButton = document.getElementById("team-b-decrement");
 const resetScoresButton = document.getElementById("reset-scores");
+const newMatchButton = document.getElementById("new-match");
 const teamANameInput = document.getElementById("team-a-name");
 const teamBNameInput = document.getElementById("team-b-name");
+const matchHistoryList = document.getElementById("match-history-list");
+const matchHistoryEmpty = document.getElementById("match-history-empty");
+
+/** @type {{ version: number, currentMatch: object, completedMatches: object[] }} */
+let appState = createDefaultState();
+
+function createMatchId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `m_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createDefaultState() {
+  const now = new Date().toISOString();
+  return {
+    version: 2,
+    currentMatch: {
+      id: createMatchId(),
+      startedAt: now,
+      teamAScore: 0,
+      teamBScore: 0,
+      teamAName: defaultTeamAName,
+      teamBName: defaultTeamBName,
+    },
+    completedMatches: [],
+  };
+}
+
+function migrateLegacyToV2(legacy) {
+  const teamAName =
+    typeof legacy.teamAName === "string" && legacy.teamAName.trim()
+      ? legacy.teamAName.trim()
+      : defaultTeamAName;
+  const teamBName =
+    typeof legacy.teamBName === "string" && legacy.teamBName.trim()
+      ? legacy.teamBName.trim()
+      : defaultTeamBName;
+  return {
+    version: 2,
+    currentMatch: {
+      id: createMatchId(),
+      startedAt: new Date().toISOString(),
+      teamAScore: Math.max(0, legacy.teamAScore),
+      teamBScore: Math.max(0, legacy.teamBScore),
+      teamAName,
+      teamBName,
+    },
+    completedMatches: [],
+  };
+}
+
+function normalizeCurrentMatch(cm) {
+  const now = new Date().toISOString();
+  return {
+    id: typeof cm.id === "string" && cm.id ? cm.id : createMatchId(),
+    startedAt: typeof cm.startedAt === "string" ? cm.startedAt : now,
+    teamAScore: Number.isFinite(cm.teamAScore) ? Math.max(0, cm.teamAScore) : 0,
+    teamBScore: Number.isFinite(cm.teamBScore) ? Math.max(0, cm.teamBScore) : 0,
+    teamAName:
+      typeof cm.teamAName === "string" && cm.teamAName.trim()
+        ? cm.teamAName.trim()
+        : defaultTeamAName,
+    teamBName:
+      typeof cm.teamBName === "string" && cm.teamBName.trim()
+        ? cm.teamBName.trim()
+        : defaultTeamBName,
+  };
+}
+
+function normalizeCompletedMatch(entry) {
+  return {
+    id: typeof entry.id === "string" && entry.id ? entry.id : createMatchId(),
+    playedAt: typeof entry.playedAt === "string" ? entry.playedAt : new Date().toISOString(),
+    teamAScore: Number.isFinite(entry.teamAScore) ? Math.max(0, entry.teamAScore) : 0,
+    teamBScore: Number.isFinite(entry.teamBScore) ? Math.max(0, entry.teamBScore) : 0,
+    teamAName:
+      typeof entry.teamAName === "string" && entry.teamAName.trim()
+        ? entry.teamAName.trim()
+        : defaultTeamAName,
+    teamBName:
+      typeof entry.teamBName === "string" && entry.teamBName.trim()
+        ? entry.teamBName.trim()
+        : defaultTeamBName,
+  };
+}
+
+function isValidCompletedMatchEntry(entry) {
+  if (!entry || typeof entry !== "object") return false;
+  if (typeof entry.playedAt !== "string" || !entry.playedAt) return false;
+  return Number.isFinite(entry.teamAScore) && Number.isFinite(entry.teamBScore);
+}
+
+function normalizeV2(parsed) {
+  const base = createDefaultState();
+  if (parsed.currentMatch && typeof parsed.currentMatch === "object") {
+    base.currentMatch = normalizeCurrentMatch(parsed.currentMatch);
+  }
+  if (Array.isArray(parsed.completedMatches)) {
+    base.completedMatches = parsed.completedMatches
+      .filter(isValidCompletedMatchEntry)
+      .map(normalizeCompletedMatch);
+  }
+  return base;
+}
+
+function loadState() {
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) {
+    appState = createDefaultState();
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    appState = createDefaultState();
+    return;
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    appState = createDefaultState();
+    return;
+  }
+
+  if (parsed.version === 2 && parsed.currentMatch && Array.isArray(parsed.completedMatches)) {
+    appState = normalizeV2(parsed);
+    return;
+  }
+
+  const hasValidTeamAScore = Number.isFinite(parsed.teamAScore);
+  const hasValidTeamBScore = Number.isFinite(parsed.teamBScore);
+  if (hasValidTeamAScore && hasValidTeamBScore) {
+    appState = migrateLegacyToV2(parsed);
+    return;
+  }
+
+  appState = createDefaultState();
+}
+
+function syncDomIntoCurrentMatch() {
+  appState.currentMatch.teamAScore = teamAScore;
+  appState.currentMatch.teamBScore = teamBScore;
+  appState.currentMatch.teamAName = resolvedTeamAName();
+  appState.currentMatch.teamBName = resolvedTeamBName();
+}
+
+function saveState() {
+  syncDomIntoCurrentMatch();
+  localStorage.setItem(storageKey, JSON.stringify(appState));
+}
+
+function applyCurrentMatchToDom() {
+  const m = appState.currentMatch;
+  teamAScore = m.teamAScore;
+  teamBScore = m.teamBScore;
+  teamANameInput.value = m.teamAName;
+  teamBNameInput.value = m.teamBName;
+  renderScores();
+  renderLeadingTeam(getLeadingTeam());
+}
 
 function resolvedTeamAName() {
   const trimmed = teamANameInput.value.trim();
@@ -39,6 +207,73 @@ function renderScores() {
 function getLeadingTeam() {
   if (teamAScore === teamBScore) return null;
   return teamAScore > teamBScore ? "team-a" : "team-b";
+}
+
+function getCompletedMatchOutcome(match) {
+  if (match.teamAScore === match.teamBScore) return "draw";
+  return match.teamAScore > match.teamBScore ? "team-a" : "team-b";
+}
+
+function formatPlayedAt(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return playedAtFormatter.format(date);
+}
+
+function renderMatchHistory() {
+  const items = appState.completedMatches;
+  matchHistoryList.innerHTML = "";
+
+  if (items.length === 0) {
+    matchHistoryEmpty.hidden = false;
+    matchHistoryList.hidden = true;
+    return;
+  }
+
+  matchHistoryEmpty.hidden = true;
+  matchHistoryList.hidden = false;
+
+  for (const match of items) {
+    const outcome = getCompletedMatchOutcome(match);
+    const row = document.createElement("li");
+    row.className = "match-history-row";
+    if (outcome === "team-a") row.classList.add("is-win-team-a");
+    else if (outcome === "team-b") row.classList.add("is-win-team-b");
+    else row.classList.add("is-draw");
+
+    const meta = document.createElement("div");
+    meta.className = "match-history-meta";
+    meta.textContent = formatPlayedAt(match.playedAt);
+
+    const sides = document.createElement("div");
+    sides.className = "match-history-sides";
+
+    const sideA = document.createElement("div");
+    sideA.className = "match-history-side match-history-side-a";
+    if (outcome === "team-a") sideA.classList.add("is-winner");
+    const nameA = document.createElement("span");
+    nameA.className = "match-history-name";
+    nameA.textContent = match.teamAName;
+    const scoreA = document.createElement("span");
+    scoreA.className = "match-history-score";
+    scoreA.textContent = String(match.teamAScore);
+    sideA.append(nameA, scoreA);
+
+    const sideB = document.createElement("div");
+    sideB.className = "match-history-side match-history-side-b";
+    if (outcome === "team-b") sideB.classList.add("is-winner");
+    const nameB = document.createElement("span");
+    nameB.className = "match-history-name";
+    nameB.textContent = match.teamBName;
+    const scoreB = document.createElement("span");
+    scoreB.className = "match-history-score";
+    scoreB.textContent = String(match.teamBScore);
+    sideB.append(nameB, scoreB);
+
+    sides.append(sideA, sideB);
+    row.append(meta, sides);
+    matchHistoryList.append(row);
+  }
 }
 
 function createConfettiPiece(layer) {
@@ -76,57 +311,21 @@ function renderLeadingTeam(teamId) {
 
 function updateScores() {
   renderScores();
-  saveScores();
+  saveState();
 
   const leadingTeam = getLeadingTeam();
   renderLeadingTeam(leadingTeam);
   if (leadingTeam) triggerConfetti(leadingTeam);
 }
 
-function saveScores() {
-  const scores = {
-    teamAScore,
-    teamBScore,
-    teamAName: resolvedTeamAName(),
-    teamBName: resolvedTeamBName(),
-  };
-  localStorage.setItem(storageKey, JSON.stringify(scores));
-}
-
-function loadScores() {
-  const savedScores = localStorage.getItem(storageKey);
-  if (!savedScores) return;
-
-  const parsedScores = JSON.parse(savedScores);
-  const hasValidTeamAScore = Number.isFinite(parsedScores.teamAScore);
-  const hasValidTeamBScore = Number.isFinite(parsedScores.teamBScore);
-  if (!hasValidTeamAScore || !hasValidTeamBScore) return;
-
-  teamAScore = Math.max(0, parsedScores.teamAScore);
-  teamBScore = Math.max(0, parsedScores.teamBScore);
-
-  const teamANameFromStorage = parsedScores.teamAName;
-  const teamBNameFromStorage = parsedScores.teamBName;
-  if (typeof teamANameFromStorage === "string" && teamANameFromStorage.trim()) {
-    teamANameInput.value = teamANameFromStorage.trim();
-  } else {
-    teamANameInput.value = defaultTeamAName;
-  }
-  if (typeof teamBNameFromStorage === "string" && teamBNameFromStorage.trim()) {
-    teamBNameInput.value = teamBNameFromStorage.trim();
-  } else {
-    teamBNameInput.value = defaultTeamBName;
-  }
-}
-
 function commitTeamAName() {
   teamANameInput.value = resolvedTeamAName();
-  saveScores();
+  saveState();
 }
 
 function commitTeamBName() {
   teamBNameInput.value = resolvedTeamBName();
-  saveScores();
+  saveState();
 }
 
 function handleTeamNameKeydown(event) {
@@ -163,16 +362,47 @@ function resetScores() {
   updateScores();
 }
 
+function startNewMatch() {
+  syncDomIntoCurrentMatch();
+  const cm = appState.currentMatch;
+
+  if (cm.teamAScore > 0 || cm.teamBScore > 0) {
+    appState.completedMatches.unshift({
+      id: createMatchId(),
+      playedAt: new Date().toISOString(),
+      teamAScore: cm.teamAScore,
+      teamBScore: cm.teamBScore,
+      teamAName: cm.teamAName,
+      teamBName: cm.teamBName,
+    });
+  }
+
+  appState.currentMatch = {
+    id: createMatchId(),
+    startedAt: new Date().toISOString(),
+    teamAScore: 0,
+    teamBScore: 0,
+    teamAName: cm.teamAName,
+    teamBName: cm.teamBName,
+  };
+
+  applyCurrentMatchToDom();
+  saveState();
+  renderMatchHistory();
+}
+
 teamAIncrementButton.addEventListener("click", incrementTeamAScore);
 teamADecrementButton.addEventListener("click", decrementTeamAScore);
 teamBIncrementButton.addEventListener("click", incrementTeamBScore);
 teamBDecrementButton.addEventListener("click", decrementTeamBScore);
 resetScoresButton.addEventListener("click", resetScores);
+newMatchButton.addEventListener("click", startNewMatch);
 teamANameInput.addEventListener("blur", commitTeamAName);
 teamBNameInput.addEventListener("blur", commitTeamBName);
 teamANameInput.addEventListener("keydown", handleTeamNameKeydown);
 teamBNameInput.addEventListener("keydown", handleTeamNameKeydown);
 
-loadScores();
-renderScores();
-renderLeadingTeam(getLeadingTeam());
+loadState();
+applyCurrentMatchToDom();
+saveState();
+renderMatchHistory();
