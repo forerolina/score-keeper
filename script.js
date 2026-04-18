@@ -1,6 +1,8 @@
 let teamAScore = 0;
 let teamBScore = 0;
 const storageKey = "score-keeper-scores";
+const defaultTeamAName = "Unicorns 🦄";
+const defaultTeamBName = "Bats 🦇";
 const confettiColors = ["#e546b3", "#7c98ea", "#f6c945", "#56c596", "#ff7f50"];
 const confettiPieceCount = 18;
 
@@ -16,6 +18,18 @@ const teamADecrementButton = document.getElementById("team-a-decrement");
 const teamBIncrementButton = document.getElementById("team-b-increment");
 const teamBDecrementButton = document.getElementById("team-b-decrement");
 const resetScoresButton = document.getElementById("reset-scores");
+const teamANameInput = document.getElementById("team-a-name");
+const teamBNameInput = document.getElementById("team-b-name");
+
+function resolvedTeamAName() {
+  const trimmed = teamANameInput.value.trim();
+  return trimmed || defaultTeamAName;
+}
+
+function resolvedTeamBName() {
+  const trimmed = teamBNameInput.value.trim();
+  return trimmed || defaultTeamBName;
+}
 
 function renderScores() {
   teamAScoreElement.textContent = String(teamAScore);
@@ -73,6 +87,8 @@ function saveScores() {
   const scores = {
     teamAScore,
     teamBScore,
+    teamAName: resolvedTeamAName(),
+    teamBName: resolvedTeamBName(),
   };
   localStorage.setItem(storageKey, JSON.stringify(scores));
 }
@@ -88,6 +104,35 @@ function loadScores() {
 
   teamAScore = Math.max(0, parsedScores.teamAScore);
   teamBScore = Math.max(0, parsedScores.teamBScore);
+
+  const teamANameFromStorage = parsedScores.teamAName;
+  const teamBNameFromStorage = parsedScores.teamBName;
+  if (typeof teamANameFromStorage === "string" && teamANameFromStorage.trim()) {
+    teamANameInput.value = teamANameFromStorage.trim();
+  } else {
+    teamANameInput.value = defaultTeamAName;
+  }
+  if (typeof teamBNameFromStorage === "string" && teamBNameFromStorage.trim()) {
+    teamBNameInput.value = teamBNameFromStorage.trim();
+  } else {
+    teamBNameInput.value = defaultTeamBName;
+  }
+}
+
+function commitTeamAName() {
+  teamANameInput.value = resolvedTeamAName();
+  saveScores();
+}
+
+function commitTeamBName() {
+  teamBNameInput.value = resolvedTeamBName();
+  saveScores();
+}
+
+function handleTeamNameKeydown(event) {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  event.currentTarget.blur();
 }
 
 function incrementTeamAScore() {
@@ -123,6 +168,10 @@ teamADecrementButton.addEventListener("click", decrementTeamAScore);
 teamBIncrementButton.addEventListener("click", incrementTeamBScore);
 teamBDecrementButton.addEventListener("click", decrementTeamBScore);
 resetScoresButton.addEventListener("click", resetScores);
+teamANameInput.addEventListener("blur", commitTeamAName);
+teamBNameInput.addEventListener("blur", commitTeamBName);
+teamANameInput.addEventListener("keydown", handleTeamNameKeydown);
+teamBNameInput.addEventListener("keydown", handleTeamNameKeydown);
 
 loadScores();
 renderScores();

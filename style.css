@@ -36,6 +36,18 @@ h1 {
   letter-spacing: 0.02em;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .teams {
   width: min(900px, 100%);
   display: grid;
@@ -118,9 +130,40 @@ h1 {
   animation: confetti-fall 1s ease-out forwards;
 }
 
-.team-card h2 {
+.team-card .team-name-heading {
   margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-name-input {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.15rem 0.35rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
   color: var(--muted-text);
+  text-align: center;
+  outline: none;
+  transition: color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.team-name-input:hover {
+  color: var(--text-color);
+}
+
+.team-name-input:focus {
+  color: var(--text-color);
+  background-color: rgba(31, 42, 68, 0.04);
+  box-shadow: 0 0 0 2px rgba(229, 70, 179, 0.35);
 }
 
 .score {
