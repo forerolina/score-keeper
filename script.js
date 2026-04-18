@@ -230,6 +230,7 @@ function applyCurrentMatchToDom() {
   renderScores();
   renderLeadingTeam(getLeadingTeam());
   renderMatchToolbar();
+  renderAggregateSummary();
 }
 
 function resolvedTeamAName() {
@@ -537,6 +538,8 @@ startOrResetButton.addEventListener("click", handleStartOrReset);
 finishMatchButton.addEventListener("click", finishMatch);
 teamANameInput.addEventListener("blur", commitTeamAName);
 teamBNameInput.addEventListener("blur", commitTeamBName);
+teamANameInput.addEventListener("input", renderAggregateSummary);
+teamBNameInput.addEventListener("input", renderAggregateSummary);
 teamANameInput.addEventListener("keydown", handleTeamNameKeydown);
 teamBNameInput.addEventListener("keydown", handleTeamNameKeydown);
 matchHistoryList.addEventListener("click", handleMatchHistoryListClick);
