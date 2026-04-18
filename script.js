@@ -258,11 +258,13 @@ function getCompletedMatchOutcome(match) {
 }
 
 function getAggregateTotals() {
+  const nameA = resolvedTeamAName();
+  const nameB = resolvedTeamBName();
   let totalA = appState.currentMatch.teamAScore;
   let totalB = appState.currentMatch.teamBScore;
   for (const match of appState.completedMatches) {
-    totalA += match.teamAScore;
-    totalB += match.teamBScore;
+    if (match.teamAName === nameA) totalA += match.teamAScore;
+    if (match.teamBName === nameB) totalB += match.teamBScore;
   }
   return { totalA, totalB };
 }
