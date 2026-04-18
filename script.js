@@ -3,8 +3,16 @@ let teamBScore = 0;
 const storageKey = "score-keeper-scores";
 const defaultTeamAName = "Unicorns 🦄";
 const defaultTeamBName = "Bats 🦇";
-const confettiColors = ["#e546b3", "#7c98ea", "#f6c945", "#56c596", "#ff7f50"];
+const confettiColors = ["#F7B5CD", "#E895B0", "#FF5252", "#000000", "#FFFFFF", "#3D3538"];
 const confettiPieceCount = 18;
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
 const playedAtFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -361,6 +369,7 @@ function createConfettiPiece(layer) {
 }
 
 function triggerConfetti(teamId) {
+  if (prefersReducedMotion()) return;
   const layer = teamId === "team-a" ? teamAConfettiLayer : teamBConfettiLayer;
   if (!layer) return;
 
