@@ -51,20 +51,31 @@ h1 {
   box-shadow: 0 12px 32px rgba(31, 42, 68, 0.1);
 }
 
+.current-match-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
 .current-match-title {
-  margin: 0 0 0.75rem;
+  margin: 0;
+  flex: 1;
+  min-width: min(12rem, 100%);
   font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--primary);
 }
 
 .current-match-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0.6rem;
-  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .toolbar-button {
@@ -117,6 +128,22 @@ h1 {
 
 .toolbar-button-primary:hover {
   background-color: var(--primary-hover);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.toolbar-button:disabled:hover {
+  transform: none;
+  opacity: 0.45;
+}
+
+.toolbar-button-finish:disabled:hover {
+  background-color: rgba(229, 70, 179, 0.08);
+  border-color: var(--primary);
 }
 
 .match-history {
@@ -280,12 +307,21 @@ h1 {
   animation: confetti-fall 1s ease-out forwards;
 }
 
+.team-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 .team-card .team-name-heading {
   margin: 0;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 }
 
 .team-name-input {
@@ -297,11 +333,11 @@ h1 {
   border-radius: 8px;
   background: transparent;
   font: inherit;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 600;
   line-height: 1.2;
   color: var(--muted-text);
-  text-align: center;
+  text-align: start;
   outline: none;
   transition: color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
@@ -320,6 +356,11 @@ h1 {
   font-size: 3rem;
   font-weight: 700;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.team-card-top .score {
+  font-size: 2.25rem;
 }
 
 .controls {
@@ -347,6 +388,17 @@ button:hover {
 button:active {
   transform: translateY(0);
   opacity: 0.92;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:disabled:hover {
+  transform: none;
+  opacity: 0.45;
 }
 
 button[id$="increment"] {

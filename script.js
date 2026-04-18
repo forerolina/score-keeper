@@ -22,15 +22,15 @@ const teamAIncrementButton = document.getElementById("team-a-increment");
 const teamADecrementButton = document.getElementById("team-a-decrement");
 const teamBIncrementButton = document.getElementById("team-b-increment");
 const teamBDecrementButton = document.getElementById("team-b-decrement");
-const resetScoresButton = document.getElementById("reset-scores");
+const startOrResetButton = document.getElementById("start-or-reset");
 const finishMatchButton = document.getElementById("finish-match");
-const newMatchButton = document.getElementById("new-match");
+const currentMatchTitleElement = document.getElementById("current-match-title");
 const teamANameInput = document.getElementById("team-a-name");
 const teamBNameInput = document.getElementById("team-b-name");
 const matchHistoryList = document.getElementById("match-history-list");
 const matchHistoryEmpty = document.getElementById("match-history-empty");
 
-/** @type {{ version: number, currentMatch: object, completedMatches: object[] }} */
+/** @type {{ version: number, matchSessionActive: boolean, currentMatch: object, completedMatches: object[] }} */
 let appState = createDefaultState();
 
 function createMatchId() {
@@ -44,6 +44,7 @@ function createDefaultState() {
   const now = new Date().toISOString();
   return {
     version: 2,
+    matchSessionActive: false,
     currentMatch: {
       id: createMatchId(),
       startedAt: now,
@@ -67,6 +68,7 @@ function migrateLegacyToV2(legacy) {
       : defaultTeamBName;
   return {
     version: 2,
+    matchSessionActive: true,
     currentMatch: {
       id: createMatchId(),
       startedAt: new Date().toISOString(),
@@ -130,6 +132,11 @@ function normalizeV2(parsed) {
       .filter(isValidCompletedMatchEntry)
       .map(normalizeCompletedMatch);
   }
+  if (typeof parsed.matchSessionActive === "boolean") {
+    base.matchSessionActive = parsed.matchSessionActive;
+  } else {
+    base.matchSessionActive = true;
+  }
   return base;
 }
 
@@ -180,6 +187,28 @@ function saveState() {
   localStorage.setItem(storageKey, JSON.stringify(appState));
 }
 
+function renderMatchToolbar() {
+  const active = appState.matchSessionActive;
+  if (currentMatchTitleElement) {
+    currentMatchTitleElement.textContent = active ? "Ongoing match" : "No ongoing match";
+  }
+  if (startOrResetButton) {
+    startOrResetButton.textContent = active ? "Reset" : "Start";
+    startOrResetButton.setAttribute(
+      "aria-label",
+      active ? "Reset scores for current match to zero" : "Start a new match",
+    );
+  }
+  if (finishMatchButton) {
+    finishMatchButton.disabled = !active;
+  }
+  const disableScores = !active;
+  teamAIncrementButton.disabled = disableScores;
+  teamADecrementButton.disabled = disableScores;
+  teamBIncrementButton.disabled = disableScores;
+  teamBDecrementButton.disabled = disableScores;
+}
+
 function applyCurrentMatchToDom() {
   const m = appState.currentMatch;
   teamAScore = m.teamAScore;
@@ -188,6 +217,7 @@ function applyCurrentMatchToDom() {
   teamBNameInput.value = m.teamBName;
   renderScores();
   renderLeadingTeam(getLeadingTeam());
+  renderMatchToolbar();
 }
 
 function resolvedTeamAName() {
@@ -379,6 +409,17 @@ function beginFreshCurrentMatch() {
   renderMatchHistory();
 }
 
+function handleStartOrReset() {
+  if (!appState.matchSessionActive) {
+    beginFreshCurrentMatch();
+    appState.matchSessionActive = true;
+    saveState();
+    renderMatchToolbar();
+    return;
+  }
+  resetScores();
+}
+
 function finishMatch() {
   syncDomIntoCurrentMatch();
   const cm = appState.currentMatch;
@@ -398,22 +439,18 @@ function finishMatch() {
     teamAName: cm.teamAName,
     teamBName: cm.teamBName,
   };
+  appState.matchSessionActive = false;
   applyCurrentMatchToDom();
   saveState();
   renderMatchHistory();
-}
-
-function startNewMatch() {
-  beginFreshCurrentMatch();
 }
 
 teamAIncrementButton.addEventListener("click", incrementTeamAScore);
 teamADecrementButton.addEventListener("click", decrementTeamAScore);
 teamBIncrementButton.addEventListener("click", incrementTeamBScore);
 teamBDecrementButton.addEventListener("click", decrementTeamBScore);
-resetScoresButton.addEventListener("click", resetScores);
+startOrResetButton.addEventListener("click", handleStartOrReset);
 finishMatchButton.addEventListener("click", finishMatch);
-newMatchButton.addEventListener("click", startNewMatch);
 teamANameInput.addEventListener("blur", commitTeamAName);
 teamBNameInput.addEventListener("blur", commitTeamBName);
 teamANameInput.addEventListener("keydown", handleTeamNameKeydown);
