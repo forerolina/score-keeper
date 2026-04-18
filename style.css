@@ -454,6 +454,16 @@ h1 {
   text-align: end;
 }
 
+#team-a-name,
+#team-b-name {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+#team-b-name {
+  margin-right: 0px;
+}
+
 .team-card .team-name-heading {
   margin: 0;
   flex: 1;
