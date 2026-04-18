@@ -257,24 +257,39 @@ h1 {
 
 .match-history-side {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0.5rem 0.4rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.55rem;
   border-radius: 10px;
   border: 1px solid transparent;
   background-color: rgba(31, 42, 68, 0.03);
 }
 
+.match-history-side-b {
+  flex-direction: row-reverse;
+}
+
 .match-history-side .match-history-name {
+  flex: 1;
+  min-width: 0;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--muted-text);
-  text-align: center;
   word-break: break-word;
 }
 
+.match-history-side-a .match-history-name {
+  text-align: start;
+}
+
+.match-history-side-b .match-history-name {
+  text-align: end;
+}
+
 .match-history-side .match-history-score {
+  flex-shrink: 0;
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-color);
@@ -368,6 +383,18 @@ h1 {
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
+}
+
+#team-b .team-card-top {
+  flex-direction: row-reverse;
+}
+
+#team-a .team-name-input {
+  text-align: start;
+}
+
+#team-b .team-name-input {
+  text-align: end;
 }
 
 .team-card .team-name-heading {
