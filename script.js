@@ -284,7 +284,8 @@ function renderAggregateSummary() {
     return;
   }
   if (totalA === 0 && totalB === 0 && !hasHistory) {
-    aggregateSummaryLead.textContent = "No matches yet.";
+    aggregateSummaryLead.textContent =
+      "No winners yet. Start a match \uD83D\uDC47\uD83C\uDFFC";
     return;
   }
   aggregateSummaryLead.textContent = `Tied at ${totalA} overall.`;
