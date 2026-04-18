@@ -101,17 +101,21 @@ h1 {
   color: var(--on-surface);
 }
 
-.aggregate-summary-lead {
+.aggregate-summary-lead,
+.match-history-empty {
   margin: 0;
   padding: var(--space-3) var(--space-3);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--on-surface);
   background-color: var(--surface-container-high);
   border: none;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-ambient);
+}
+
+.aggregate-summary-lead {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-surface);
 }
 
 .current-match {
@@ -282,14 +286,9 @@ h1 {
 }
 
 .match-history-empty {
-  margin: 0;
-  padding: var(--space-3) var(--space-3);
   font-family: var(--font-body);
   font-size: 0.95rem;
   color: var(--on-surface-variant);
-  background: transparent;
-  border: none;
-  border-block: 1px dotted var(--control-border);
 }
 
 .match-history-list {
