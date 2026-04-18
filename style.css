@@ -443,8 +443,60 @@ h1 {
 }
 
 @media (max-width: 720px) {
+  body {
+    padding-top: max(var(--space-4), env(safe-area-inset-top, 0px));
+    padding-right: max(var(--space-2), env(safe-area-inset-right, 0px));
+    padding-left: max(var(--space-2), env(safe-area-inset-left, 0px));
+    padding-bottom: max(3rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .aggregate-summary-title,
+  .current-match-title {
+    font-size: clamp(1rem, 4.5vw, 1.2rem);
+  }
+
+  .current-match {
+    padding: var(--space-3) var(--space-3) 1.5rem;
+  }
+
+  .current-match-toolbar {
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .current-match-toolbar .toolbar-button {
+    flex: 1 1 auto;
+    min-width: min(140px, calc(100% - var(--space-2)));
+  }
+
   .teams {
     grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    padding: var(--space-3);
+  }
+
+  .match-history-meta {
+    padding-inline-start: var(--space-3);
+  }
+
+  .match-history-sides {
+    grid-template-columns: 1fr;
+  }
+
+  .match-history-side {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .match-history-side-b {
+    flex-direction: row;
+  }
+
+  .match-history-side-b .match-history-name {
+    text-align: start;
   }
 }
 
