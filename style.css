@@ -101,9 +101,10 @@ h1 {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--on-surface);
-  background-color: var(--surface-container-low);
+  background-color: var(--surface-container-high);
   border: none;
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-ambient);
 }
 
 .current-match {
