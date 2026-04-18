@@ -15,6 +15,7 @@ const teamAIncrementButton = document.getElementById("team-a-increment");
 const teamADecrementButton = document.getElementById("team-a-decrement");
 const teamBIncrementButton = document.getElementById("team-b-increment");
 const teamBDecrementButton = document.getElementById("team-b-decrement");
+const resetScoresButton = document.getElementById("reset-scores");
 
 function renderScores() {
   teamAScoreElement.textContent = String(teamAScore);
@@ -111,10 +112,17 @@ function decrementTeamBScore() {
   updateScores();
 }
 
+function resetScores() {
+  teamAScore = 0;
+  teamBScore = 0;
+  updateScores();
+}
+
 teamAIncrementButton.addEventListener("click", incrementTeamAScore);
 teamADecrementButton.addEventListener("click", decrementTeamAScore);
 teamBIncrementButton.addEventListener("click", incrementTeamBScore);
 teamBDecrementButton.addEventListener("click", decrementTeamBScore);
+resetScoresButton.addEventListener("click", resetScores);
 
 loadScores();
 renderScores();

@@ -39,8 +39,43 @@ h1 {
 .teams {
   width: min(900px, 100%);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 1rem;
+  align-items: center;
+}
+
+.reset-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0;
+}
+
+#reset-scores {
+  background-color: transparent;
+  color: var(--muted-text);
+  border: 1px solid var(--card-border);
+  white-space: nowrap;
+}
+
+#reset-scores:hover {
+  background-color: rgba(31, 42, 68, 0.04);
+  color: var(--text-color);
+  border-color: var(--muted-text);
+}
+
+#reset-scores:active {
+  background-color: rgba(31, 42, 68, 0.07);
+}
+
+@media (max-width: 720px) {
+  .teams {
+    grid-template-columns: 1fr;
+  }
+
+  .reset-slot {
+    padding: 0.35rem 0;
+  }
 }
 
 .team-card {
