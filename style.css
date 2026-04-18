@@ -300,6 +300,7 @@ h1 {
 }
 
 .match-history-meta {
+  padding-inline-start: 32px;
   font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
