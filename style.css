@@ -98,6 +98,17 @@ h1 {
   border-color: var(--muted-text);
 }
 
+.toolbar-button-finish {
+  border: 2px solid var(--primary);
+  background-color: rgba(229, 70, 179, 0.08);
+  color: var(--text-color);
+}
+
+.toolbar-button-finish:hover {
+  background-color: rgba(229, 70, 179, 0.16);
+  border-color: var(--primary-hover);
+}
+
 .toolbar-button-primary {
   border: none;
   background-color: var(--primary);

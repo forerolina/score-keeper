@@ -23,6 +23,7 @@ const teamADecrementButton = document.getElementById("team-a-decrement");
 const teamBIncrementButton = document.getElementById("team-b-increment");
 const teamBDecrementButton = document.getElementById("team-b-decrement");
 const resetScoresButton = document.getElementById("reset-scores");
+const finishMatchButton = document.getElementById("finish-match");
 const newMatchButton = document.getElementById("new-match");
 const teamANameInput = document.getElementById("team-a-name");
 const teamBNameInput = document.getElementById("team-b-name");
@@ -362,21 +363,9 @@ function resetScores() {
   updateScores();
 }
 
-function startNewMatch() {
+function beginFreshCurrentMatch() {
   syncDomIntoCurrentMatch();
   const cm = appState.currentMatch;
-
-  if (cm.teamAScore > 0 || cm.teamBScore > 0) {
-    appState.completedMatches.unshift({
-      id: createMatchId(),
-      playedAt: new Date().toISOString(),
-      teamAScore: cm.teamAScore,
-      teamBScore: cm.teamBScore,
-      teamAName: cm.teamAName,
-      teamBName: cm.teamBName,
-    });
-  }
-
   appState.currentMatch = {
     id: createMatchId(),
     startedAt: new Date().toISOString(),
@@ -385,10 +374,37 @@ function startNewMatch() {
     teamAName: cm.teamAName,
     teamBName: cm.teamBName,
   };
-
   applyCurrentMatchToDom();
   saveState();
   renderMatchHistory();
+}
+
+function finishMatch() {
+  syncDomIntoCurrentMatch();
+  const cm = appState.currentMatch;
+  appState.completedMatches.unshift({
+    id: createMatchId(),
+    playedAt: new Date().toISOString(),
+    teamAScore: cm.teamAScore,
+    teamBScore: cm.teamBScore,
+    teamAName: cm.teamAName,
+    teamBName: cm.teamBName,
+  });
+  appState.currentMatch = {
+    id: createMatchId(),
+    startedAt: new Date().toISOString(),
+    teamAScore: 0,
+    teamBScore: 0,
+    teamAName: cm.teamAName,
+    teamBName: cm.teamBName,
+  };
+  applyCurrentMatchToDom();
+  saveState();
+  renderMatchHistory();
+}
+
+function startNewMatch() {
+  beginFreshCurrentMatch();
 }
 
 teamAIncrementButton.addEventListener("click", incrementTeamAScore);
@@ -396,6 +412,7 @@ teamADecrementButton.addEventListener("click", decrementTeamAScore);
 teamBIncrementButton.addEventListener("click", incrementTeamBScore);
 teamBDecrementButton.addEventListener("click", decrementTeamBScore);
 resetScoresButton.addEventListener("click", resetScores);
+finishMatchButton.addEventListener("click", finishMatch);
 newMatchButton.addEventListener("click", startNewMatch);
 teamANameInput.addEventListener("blur", commitTeamAName);
 teamBNameInput.addEventListener("blur", commitTeamBName);
