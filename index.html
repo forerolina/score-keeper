@@ -16,7 +16,7 @@
             <button
               id="start-or-reset"
               type="button"
-              class="toolbar-button toolbar-button-secondary"
+              class="toolbar-button toolbar-button-primary"
               aria-label="Start a new match"
             >
               Start
@@ -80,7 +80,18 @@
       </section>
 
       <section class="match-history" aria-labelledby="match-history-title">
-        <h2 id="match-history-title" class="match-history-title">Past matches</h2>
+        <header class="match-history-header">
+          <h2 id="match-history-title" class="match-history-title">Past matches</h2>
+          <button
+            id="clear-match-history"
+            type="button"
+            class="toolbar-button toolbar-button-secondary match-history-clear"
+            aria-label="Clear all completed matches"
+            disabled
+          >
+            Clear all
+          </button>
+        </header>
         <p id="match-history-empty" class="match-history-empty">No completed matches yet.</p>
         <ol id="match-history-list" class="match-history-list" hidden></ol>
       </section>

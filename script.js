@@ -29,6 +29,7 @@ const teamANameInput = document.getElementById("team-a-name");
 const teamBNameInput = document.getElementById("team-b-name");
 const matchHistoryList = document.getElementById("match-history-list");
 const matchHistoryEmpty = document.getElementById("match-history-empty");
+const clearMatchHistoryButton = document.getElementById("clear-match-history");
 
 /** @type {{ version: number, matchSessionActive: boolean, currentMatch: object, completedMatches: object[] }} */
 let appState = createDefaultState();
@@ -198,6 +199,8 @@ function renderMatchToolbar() {
       "aria-label",
       active ? "Reset scores for current match to zero" : "Start a new match",
     );
+    startOrResetButton.classList.toggle("toolbar-button-primary", !active);
+    startOrResetButton.classList.toggle("toolbar-button-secondary", active);
   }
   if (finishMatchButton) {
     finishMatchButton.disabled = !active;
@@ -253,6 +256,9 @@ function formatPlayedAt(iso) {
 
 function renderMatchHistory() {
   const items = appState.completedMatches;
+  if (clearMatchHistoryButton) {
+    clearMatchHistoryButton.disabled = items.length === 0;
+  }
   matchHistoryList.innerHTML = "";
 
   if (items.length === 0) {
@@ -271,6 +277,17 @@ function renderMatchHistory() {
     if (outcome === "team-a") row.classList.add("is-win-team-a");
     else if (outcome === "team-b") row.classList.add("is-win-team-b");
     else row.classList.add("is-draw");
+
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.className = "match-history-row-dismiss";
+    dismiss.textContent = "\u00d7";
+    const playedLabel = formatPlayedAt(match.playedAt);
+    dismiss.setAttribute(
+      "aria-label",
+      playedLabel ? `Remove match from ${playedLabel}` : "Remove match from history",
+    );
+    dismiss.dataset.matchId = match.id;
 
     const meta = document.createElement("div");
     meta.className = "match-history-meta";
@@ -302,9 +319,26 @@ function renderMatchHistory() {
     sideB.append(nameB, scoreB);
 
     sides.append(sideA, sideB);
-    row.append(meta, sides);
+    row.append(dismiss, meta, sides);
     matchHistoryList.append(row);
   }
+}
+
+function handleMatchHistoryListClick(event) {
+  const dismiss = event.target.closest(".match-history-row-dismiss");
+  if (!dismiss || !matchHistoryList.contains(dismiss)) return;
+  const matchId = dismiss.dataset.matchId;
+  if (!matchId) return;
+  appState.completedMatches = appState.completedMatches.filter((entry) => entry.id !== matchId);
+  saveState();
+  renderMatchHistory();
+}
+
+function clearAllMatchHistory() {
+  if (appState.completedMatches.length === 0) return;
+  appState.completedMatches = [];
+  saveState();
+  renderMatchHistory();
 }
 
 function createConfettiPiece(layer) {
@@ -455,6 +489,8 @@ teamANameInput.addEventListener("blur", commitTeamAName);
 teamBNameInput.addEventListener("blur", commitTeamBName);
 teamANameInput.addEventListener("keydown", handleTeamNameKeydown);
 teamBNameInput.addEventListener("keydown", handleTeamNameKeydown);
+matchHistoryList.addEventListener("click", handleMatchHistoryListClick);
+clearMatchHistoryButton?.addEventListener("click", clearAllMatchHistory);
 
 loadState();
 applyCurrentMatchToDom();
