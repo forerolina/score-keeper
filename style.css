@@ -287,9 +287,9 @@ h1 {
   font-family: var(--font-body);
   font-size: 0.95rem;
   color: var(--on-surface-variant);
-  background-color: var(--surface-container-low);
+  background: transparent;
   border: none;
-  border-radius: var(--radius-card);
+  border-block: 1px dotted var(--control-border);
 }
 
 .match-history-list {
