@@ -17,8 +17,15 @@
   --on-surface: #0d0d0d;
   --on-surface-variant: #3d3538;
 
-  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-fallback: #fffafb;
   --glass-blur: 18px;
+
+  --control-border: color-mix(in srgb, var(--on-surface) 45%, var(--surface-container-low));
+  --control-disabled-fill-primary: color-mix(in srgb, var(--primary) 40%, var(--surface));
+  --control-disabled-fill-secondary: color-mix(in srgb, var(--secondary) 20%, var(--surface-container-low));
+  --control-disabled-fill-finish: color-mix(in srgb, var(--primary) 32%, var(--surface-container-low));
+  --control-disabled-on: var(--on-surface-variant);
 
   --shadow-ambient: 0 28px 56px rgba(0, 0, 0, 0.06);
   --shadow-ambient-strong: 0 32px 64px rgba(0, 0, 0, 0.08);
@@ -108,7 +115,8 @@ h1 {
 }
 
 .current-match {
-  background: var(--glass-bg);
+  background-color: var(--glass-fallback);
+  background-image: linear-gradient(var(--glass-bg), var(--glass-bg));
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: none;
@@ -200,14 +208,29 @@ h1 {
 }
 
 .toolbar-button:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  filter: none;
+  box-shadow: none;
+}
+
+.toolbar-button-primary:disabled {
+  background: var(--control-disabled-fill-primary);
+  color: var(--control-disabled-on);
+}
+
+.toolbar-button-secondary:disabled {
+  background: var(--control-disabled-fill-secondary);
+  color: var(--control-disabled-on);
+}
+
+.toolbar-button-finish:disabled {
+  background: var(--control-disabled-fill-finish);
+  color: var(--control-disabled-on);
 }
 
 .toolbar-button:disabled:hover {
   transform: none;
-  opacity: 0.5;
   filter: none;
 }
 
@@ -227,7 +250,7 @@ h1 {
 }
 
 .toolbar-button-finish:disabled:hover {
-  background-color: rgba(247, 181, 205, 0.45);
+  background-color: var(--control-disabled-fill-finish);
 }
 
 .match-history {
@@ -511,6 +534,7 @@ h1 {
   border: none;
   border-radius: var(--radius-pill);
   background: var(--surface-container-low);
+  box-shadow: inset 0 0 0 1px var(--control-border);
   font-family: var(--font-body);
   font-size: 1.1rem;
   font-weight: 600;
@@ -518,7 +542,7 @@ h1 {
   color: var(--on-surface-variant);
   text-align: start;
   outline: none;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .team-name-input:hover {
@@ -579,14 +603,19 @@ button:active {
 }
 
 button:disabled {
-  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
+  filter: none;
+  box-shadow: none;
 }
 
 button:disabled:hover {
   transform: none;
-  opacity: 0.45;
+  filter: none;
+}
+
+button:disabled:active {
+  opacity: 1;
 }
 
 button[id$="increment"] {
@@ -617,6 +646,16 @@ button[id$="decrement"]:hover:not(:disabled) {
 button[id$="decrement"]:focus-visible {
   outline: 2px solid var(--focus-ring-on-dark);
   outline-offset: 3px;
+}
+
+button[id$="increment"]:disabled {
+  background: var(--control-disabled-fill-primary);
+  color: var(--control-disabled-on);
+}
+
+button[id$="decrement"]:disabled {
+  background: var(--control-disabled-fill-secondary);
+  color: var(--control-disabled-on);
 }
 
 @keyframes confetti-fall {
